@@ -1,0 +1,23 @@
+{
+  "name": "expressjs-product-details",
+  "version": "1.0.0",
+  "description": "Express.js product details app with JSON seed data and GitHub Actions CI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test",
+    "lint": "eslint ."
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "eslint": "^9.17.0",
+    "supertest": "^7.0.0",
+    "@eslint/js": "^9.17.0"
+  }
+}

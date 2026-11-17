@@ -1,0 +1,83 @@
+
+name: Express Product Details CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout source code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3. Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # 4. Run ESLint
+      - name: Run Lint
+        run: npm run lint
+
+      # 5. Run automated tests
+      - name: Run Tests
+        run: npm test
+
+      # 6. Deploy only after a successful push to main
+      - name: Configure SSH
+        if: github.event_name == 'push'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.SERVER_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      # 7. Copy application files to Ubuntu server
+      - name: Copy Files to Server
+        if: github.event_name == 'push'
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
+          DEPLOY_PATH: /var/www/expressjs-product-details
+        run: |
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='test' \
+            -e "ssh -p $SERVER_PORT" \
+            ./ "$SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/"
+
+      # 8. Install production dependencies and restart app
+      - name: Restart Express Application
+        if: github.event_name == 'push'
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
+          DEPLOY_PATH: /var/www/expressjs-product-details
+        run: |
+          ssh -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" << EOF
+            set -e
+            cd "$DEPLOY_PATH"
+            npm install --omit=dev
+            sudo systemctl restart express-product
+            sudo systemctl status express-product --no-pager
+          EOF

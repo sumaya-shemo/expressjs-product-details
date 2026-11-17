@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse product details in the Express Store demo.">
+  <title>Express Store | Products</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Express<span>Store</span></a>
+    <span class="status"><i></i> Demo catalog</span>
+  </header>
+  <main class="container">
+    <section class="intro">
+      <p class="eyebrow">PRODUCT CATALOG</p>
+      <h1>Find your next favorite.</h1>
+      <p class="subtitle">Explore the catalog and select a product to view its details.</p>
+      <label class="search">
+        <span aria-hidden="true">⌕</span>
+        <input id="searchInput" type="search" placeholder="Search products or categories..." aria-label="Search products">
+      </label>
+    </section>
+    <section class="catalog">
+      <div class="section-heading">
+        <div><h2>All products</h2><p id="resultCount">Loading products...</p></div>
+        <span class="api-label">LIVE FROM EXPRESS API</span>
+      </div>
+      <div id="productGrid" class="product-grid" aria-live="polite"></div>
+    </section>
+  </main>
+  <dialog id="productDialog" class="product-dialog">
+    <button id="closeDialog" class="close" aria-label="Close details">×</button>
+    <div id="productDetails"></div>
+  </dialog>
+  <footer>Express Store Demo <span>·</span> Built with Node.js &amp; Express</footer>
+</body>
+</html>

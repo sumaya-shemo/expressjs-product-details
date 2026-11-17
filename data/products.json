@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "name": "Wireless Headphones",
+    "category": "Electronics",
+    "price": 79.99,
+    "currency": "USD",
+    "stock": 24,
+    "rating": 4.7,
+    "description": "Comfortable over-ear headphones with clear sound, deep bass and long battery life.",
+    "image": ""
+  },
+  {
+    "id": 2,
+    "name": "Smart Watch",
+    "category": "Electronics",
+    "price": 129.0,
+    "currency": "USD",
+    "stock": 15,
+    "rating": 4.5,
+    "description": "A lightweight smartwatch for activity tracking, notifications and everyday use.",
+    "image": ""
+  },
+  {
+    "id": 3,
+    "name": "Everyday Backpack",
+    "category": "Accessories",
+    "price": 49.5,
+    "currency": "USD",
+    "stock": 38,
+    "rating": 4.6,
+    "description": "A durable everyday backpack with a padded laptop compartment and useful pockets.",
+    "image": ""
+  },
+  {
+    "id": 4,
+    "name": "Mechanical Keyboard",
+    "category": "Accessories",
+    "price": 89.0,
+    "currency": "USD",
+    "stock": 9,
+    "rating": 4.8,
+    "description": "A compact mechanical keyboard with tactile switches and a clean minimalist design.",
+    "image": ""
+  },
+  {
+    "id": 5,
+    "name": "Desk Lamp",
+    "category": "Home",
+    "price": 34.99,
+    "currency": "USD",
+    "stock": 0,
+    "rating": 4.3,
+    "description": "An adjustable LED desk lamp with multiple brightness levels for focused work.",
+    "image": ""
+  }
+]
