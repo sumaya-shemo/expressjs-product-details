@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -14,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout source code
+      # 1. Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -36,21 +37,71 @@ jobs:
       - name: Run Tests
         run: npm test
 
-      # 6. Deploy only after a successful push to main
+      # 6. Configure SSH
       - name: Configure SSH
         if: github.event_name == 'push'
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.SERVER_KNOWN_HOSTS }}
         run: |
+          set -e
+
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "ERROR: SERVER_SSH_KEY is missing"
+            exit 1
+          fi
+
+          if [ -z "$KNOWN_HOSTS" ]; then
+            echo "ERROR: SERVER_KNOWN_HOSTS is missing"
+            exit 1
+          fi
+
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      # 7. Copy application files to Ubuntu server
-      - name: Copy Files to Server
+      # 7. Validate server configuration
+      - name: Validate Server Configuration
+        if: github.event_name == 'push'
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
+        run: |
+          set -e
+
+          if [ -z "$SERVER_HOST" ]; then
+            echo "ERROR: SERVER_HOST secret is missing"
+            exit 1
+          fi
+
+          if [ -z "$SERVER_USER" ]; then
+            echo "ERROR: SERVER_USER secret is missing"
+            exit 1
+          fi
+
+          echo "Server configuration validated"
+
+      # 8. Test SSH connection
+      - name: Test SSH Connection
+        if: github.event_name == 'push'
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
+        run: |
+          ssh -p "$SERVER_PORT" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            "$SERVER_USER@$SERVER_HOST" \
+            "echo 'SSH connection successful'"
+
+      # 9. Copy files to Ubuntu server
+      - name: Deploy Application Files
         if: github.event_name == 'push'
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
@@ -58,6 +109,8 @@ jobs:
           SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
           DEPLOY_PATH: /var/www/expressjs-product-details
         run: |
+          set -e
+
           rsync -avz --delete \
             --exclude='.git' \
             --exclude='node_modules' \
@@ -65,8 +118,8 @@ jobs:
             -e "ssh -p $SERVER_PORT" \
             ./ "$SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/"
 
-      # 8. Install production dependencies and restart app
-      - name: Restart Express Application
+      # 10. Install production dependencies
+      - name: Install Production Dependencies
         if: github.event_name == 'push'
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
@@ -74,10 +127,28 @@ jobs:
           SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
           DEPLOY_PATH: /var/www/expressjs-product-details
         run: |
-          ssh -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" << EOF
-            set -e
-            cd "$DEPLOY_PATH"
-            npm install --omit=dev
-            sudo systemctl restart express-product
-            sudo systemctl status express-product --no-pager
+          ssh -p "$SERVER_PORT" \
+            "$SERVER_USER@$SERVER_HOST" << 'EOF'
+              set -e
+              cd /var/www/expressjs-product-details
+              npm install --omit=dev
+          EOF
+
+      # 11. Restart Express application
+      - name: Restart Express Application
+        if: github.event_name == 'push'
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
+        run: |
+          ssh -p "$SERVER_PORT" \
+            "$SERVER_USER@$SERVER_HOST" << 'EOF'
+              set -e
+
+              sudo systemctl restart express-product
+
+              sudo systemctl is-active --quiet express-product
+
+              echo "Express application deployed successfully"
           EOF
