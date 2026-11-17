@@ -53,5 +53,18 @@
     "rating": 4.3,
     "description": "An adjustable LED desk lamp with multiple brightness levels for focused work.",
     "image": ""
+  },
+   {
+    "id": 6,
+    "name": "Onikuma M830",
+    "category": "MicroPhone",
+    "price": 34.99,
+    "currency": "USD",
+    "stock": 0,
+    "rating": 4.3,
+    "description": "14mm condenser capsule",
+    "image": ""
   }
+
+  
 ]

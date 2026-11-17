@@ -8,7 +8,8 @@ const closeDialog = document.getElementById("closeDialog");
 const icons = {
   Electronics: "🎧",
   Accessories: "🎒",
-  Home: "💡"
+  Home: "💡",
+  MicroPhone:"🎙️"
 };
 
 function money(product) {
