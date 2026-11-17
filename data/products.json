@@ -13,7 +13,7 @@
   {
     "id": 2,
     "name": "Smart Watch",
-    "category": "Electronics",
+    "category": "Watch",
     "price": 129.0,
     "currency": "USD",
     "stock": 15,
@@ -35,7 +35,7 @@
   {
     "id": 4,
     "name": "Mechanical Keyboard",
-    "category": "Accessories",
+    "category": "Keyboard",
     "price": 89.0,
     "currency": "USD",
     "stock": 9,
@@ -64,7 +64,18 @@
     "rating": 4.3,
     "description": "14mm condenser capsule",
     "image": ""
+  },
+  {
+    "id": 7,
+    "name": "LOGITECH B100",
+    "category": "Mouse",
+    "price": 14.99,
+    "currency": "USD",
+    "stock": 0,
+    "rating": 4.3,
+    "description": "An office is basic with built-in quality",
+    "image": ""
   }
 
-  
+ 
 ]

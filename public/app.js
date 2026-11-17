@@ -9,7 +9,10 @@ const icons = {
   Electronics: "🎧",
   Accessories: "🎒",
   Home: "💡",
-  MicroPhone:"🎙️"
+  MicroPhone:"🎙️",
+  Keyboard:"🎹",
+  Watch:" ⌚",
+  Mouse:"🖱️"
 };
 
 function money(product) {
